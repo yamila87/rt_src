@@ -1,0 +1,16 @@
+#!/bin/sh
+
+CUR_DIR=`pwd`
+BUILD_DIR=`mktemp -d`
+echo "BUILD_DIR=$BUILD_DIR"
+cp -r jarRoot/* $BUILD_DIR
+mkdir $BUILD_DIR/WEB-INF/lib
+for jar in ../lib/jar/*.jar ; do
+	cp  $jar $BUILD_DIR/WEB-INF/lib
+done
+mkdir $BUILD_DIR/WEB-INF/classes
+cp manifest.txt LibRt.class LibRtServlet.class librt.js $BUILD_DIR/WEB-INF/classes
+cd $BUILD_DIR
+zip -r  emrt.war *
+cd $CUR_DIR
+mv $BUILD_DIR/emrt.war .

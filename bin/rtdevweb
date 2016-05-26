@@ -1,0 +1,14 @@
+#!/bin/sh
+
+#XXX:compute/fix paths
+JAVA_HOME=/opt/jdk1.7.0_40
+JAVA_BIN=$JAVA_HOME/bin
+JAVA=$JAVA_BIN/java
+if [ ! -f $JAVA ] ; then JAVA=`which java` ; fi
+EMRT_BIN=$( cd "$( dirname "$0" )" && pwd )
+EMRT_LIB=$EMRT_BIN
+EMRT_CFG=$EMRT_BIN
+EMRT_LIB3p=$EMRT_BIN/../lib/jar
+echo "EMRT is in $EMRT_BIN" >&2
+echo $JAVA -Dlibrt.webapp=`readlink -f $1` -Djava.util.logging.config.file=$EMRT_CFG/cfg.logging.props -jar /opt/jetty/jetty-runner-9.2.0.M0.jar --lib $EMRT_LIB3p --classes $EMRT_BIN $EMRT_BIN/jarRoot/ 
+$JAVA -Dlibrt.webapp=`readlink -f $1` -Djava.util.logging.config.file=$EMRT_CFG/cfg.logging.props -jar /opt/jetty/jetty-runner-9.2.0.M0.jar --lib $EMRT_LIB3p --classes $EMRT_BIN $EMRT_BIN/jarRoot/  

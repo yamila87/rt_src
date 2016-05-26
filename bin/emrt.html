@@ -1,0 +1,65 @@
+<html>
+<head>
+<!-- #INFO: ejeuctar NUESTRO javascript en el browser para probar, etc. -->
+<script>
+//S: globals
+GLOBAL= this;
+RTENV= {};
+
+//S: load hack
+E=null;
+LOADED= {};
+
+xload= function (path,cb) {
+	if (LOADED[path]) { return ; }
+	var e= document.createElement("IFRAME");
+	e.id= path;
+	e.style.display= "none";
+	e.onload= function () { 
+		console.log("LOADED "+path); 
+		for (var k in RTENV) { GLOBAL[k]= RTENV[k]; } 
+		var s= e.contentDocument.body.innerHTML.replace(/^<pre>/,"").replace(/<\/pre>$/,"").replace(/&amp;/g,"&").replace(/&gt;/g,">").replace(/&lt;/g,"<");
+		document.body.removeChild(e);
+		LOADED[path]= s;
+		s.replace(/load\(\s*(['"])([^'"]+)/g,function (m,q,f) { xload(f); })
+		if (cb) { cb(path); }
+	}
+	e.src= path;	
+	E=e;
+	document.body.appendChild(e);
+}
+
+//S: define rt
+load= function (p,opt) { 
+	console.log("DBG:LOAD "+p);
+	try { (opt=="Q") || alert("LOAD "+p); eval(LOADED[p]); } //WARN: el ALERT es necesario para que se actualizen las definiciones si este load fue llamado desde otro eval :P
+	catch(ex) { console.log("ERR:EVALUANDO '"+p+"' "+ex); } 
+	for (var k in RTENV) { GLOBAL[k]= RTENV[k]; } 
+}
+
+RTENV.LibRt= {
+	LogLvlMax: 7,
+	logm: function (t,l,m, o) { console.log("LOG:"+t+":"+l+":"+m+":"+(o ? JSON.stringify(o) : "")); },
+}
+RTENV.load= load;
+
+//S: run
+TOLOAD= location.hash ? location.hash.substr(1).split(",") : [];
+WAITING= {};
+checkWaiting= function (k) {
+	delete(WAITING[k]);
+	if (Object.keys(WAITING).length==0) {
+		TOLOAD.map(function (p) { load(p,"Q"); })
+	}	
+}
+
+window.onload= function () {
+	if(TOLOAD.indexOf("librt.js")<0) { TOLOAD.unshift("librt.js"); }
+	TOLOAD.map(function (p) { WAITING[p]=1; }); 
+	TOLOAD.map(function (p) { xload(p,checkWaiting); }); 
+}
+</script>
+</head>
+<body>
+</body>
+</html>

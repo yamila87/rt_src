@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#INFO: construye emrt.jar y todo lo que hace falta en ../../rt_java_run 
+#XXX: eliminar dependencia de bash, que se pueda ejecutar con el mismo emrt :)
+
+JAVA_HOME=~/opt/jdk17
+JAVAC=$JAVA_HOME/bin/javac
+CUR_DIR=`pwd`
+RT_CONF_WEB=etc
+LIB_3P_JAR_DIR=../../rt_java_lib_3p_jar/
+LIB_3P_JS_DIR=../../rt_lib_3p_js/
+OUT_DIR=../../rt_java_run
+
+BUILD_DIR=`mktemp -d`
+echo "BUILD_DIR=$BUILD_DIR"
+
+function copy_dir {
+	mkdir -p $2
+	cp -r $1/* $2 
+	rm -Rf $2/*.NO_SE_USA*
+}
+
+for src in *.java ; do 
+	$JAVAC -cp $LIB_3P_JAR_DIR/bcprov-jdk15on-154.jar:$LIB_3P_JAR_DIR/js.jar:$LIB_3P_JAR_DIR/gson-2.2.4.jar:$LIB_3P_JAR_DIR/SecureChannelFacade-0.2.jar:$LIB_3P_JAR_DIR/jsch-0.1.51.jar:$JAVA_HOME/lib/servlet-api-2.5.jar:. $src
+done
+
+cp -r *.class cfg.* *.properties lib*.js u*.js web.js $BUILD_DIR
+mkdir $BUILD_DIR/lib
+copy_dir $LIB_3P_JS_DIR $BUILD_DIR/lib/js
+cp -r jarRoot/* $BUILD_DIR
+mkdir -p $BUILD_DIR/WEB-INF/classes/lib
+cp *.class cfg.* *.properties lib*.js u*.js web.js  $BUILD_DIR/WEB-INF/classes
+copy_dir $LIB_3P_JS_DIR $BUILD_DIR/WEB-INF/classes/lib/js
+cd $BUILD_DIR
+zip -r emrt.jar *
+cd $CUR_DIR
+mv $BUILD_DIR/emrt.jar $OUT_DIR
+
+for i in rt rtWeb rtUnaInstancia ; do
+	cp $i $OUT_DIR/$i
+	cp $i.cmd $OUT_DIR/$i.cmd
+done
+
+copy_dir $LIB_3P_JAR_DIR $OUT_DIR
+copy_dir $RT_CONF_WEB $OUT_DIR/etc

@@ -1,0 +1,55 @@
+<web-app>
+<!-- XXX: reemplazar toooda esta chanchada por UN servlet que delegue en el interprte, deberia ser mas configurable -->
+	<servlet-mapping>   
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.html</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.jpg</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+ 		<servlet-name>default</servlet-name>
+    <url-pattern>*.png</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.css</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.js</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.json</url-pattern>
+	</servlet-mapping>
+<!-- EM: todos los tipos estaticos se sirven directamente -->
+   <servlet>
+     <servlet-name>LibRtServlet</servlet-name>
+     <servlet-class>LibRtServlet</servlet-class>
+   </servlet>
+   <servlet-mapping>
+     <servlet-name>LibRtServlet</servlet-name>
+     <url-pattern>/app/*</url-pattern>
+   </servlet-mapping>
+<!-- EM: PyServlet solo atiende en /app.py -->
+
+<!--
+<filter>
+    <filter-name>UrlRewriteFilter</filter-name>
+    <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
+		<init-param>
+        <param-name>confReloadCheckInterval</param-name>
+        <param-value>1</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>UrlRewriteFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+</filter-mapping>
+-->
+<!-- EM: usamos rewriting para tratar otras url como casos especiales -->
+</web-app>

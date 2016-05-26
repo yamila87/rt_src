@@ -1,0 +1,27 @@
+#!/bin/sh
+
+#XXX:compute/fix paths
+JAVA_HOME=~/opt/jdk17
+JAVA_BIN=$JAVA_HOME/bin
+JAVA=$JAVA_BIN/java
+if [ ! -f $JAVA ] ; then JAVA=`which java` ; fi
+if [ ! -n "$JAVA" ] ; then JAVA=java ; fi
+EMRT_BIN=$( cd "$( dirname "$0" )" && pwd )
+EMRT_LIB=$EMRT_BIN
+EMRT_CFG=$EMRT_BIN
+EMRT_LIB3p=$EMRT_BIN/../lib/jar
+echo "EMRT is in $EMRT_BIN" >&2
+
+if [ -z "$CP" ] ; then CP="."; fi
+
+for i in $EMRT_LIB3p/*.jar ; do 
+	CP="$CP:$i";
+done
+
+echo $JAVA -cp $CP:$EMRT_LIB -Djava.util.logging.config.file=$EMRT_CFG/cfg.logging.props LibRt $* >&2
+$JAVA -cp $CP:$EMRT_LIB -Djava.util.logging.config.file=$EMRT_CFG/cfg.logging.props LibRt $* >&2
+
+
+
+
+
