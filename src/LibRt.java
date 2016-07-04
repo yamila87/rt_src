@@ -254,16 +254,12 @@ public class LibRt {
 	@SuppressWarnings("unchecked")
 	public static int serDiccCsvToWriter(String csv, Writer writer, int maxRows, String separator) {
 		int counter = 0;
-		
-		logm("DBG",9,"LINEA CSV",csv);
-		
+
 		if (csv!=null) {
 			try{
 				writer.write(csv);
 				writer.write(EOL);
-				
-				logm("DBG",2,"termino de escribir linea",null);
-				
+
 			}  catch (IOException e) {
 				logmex("ERR", 0, "FILE WRITER CSV OUTPUT writing", null,e);
 				return -1;
@@ -274,6 +270,98 @@ public class LibRt {
 		}
 
 		return counter;
+	}
+	
+	public static int serDiccGroupByToWriter(ResultSet rs, Writer writer, int maxRows,String idPor,String []idAcumulados ,String campoAcumuladoNombre){
+		int rowsCount=0;
+		
+		try {
+			
+			ArrayList<String> acumulado = null;
+			String idActual=null;
+			StringBuilder reg = null;			
+			reg = new StringBuilder();
+			String value = "";
+				
+			if(rs!=null){
+				ResultSetMetaData rsm = rs.getMetaData();
+				int countCol = rsm.getColumnCount();
+				String name = "";
+				for(int i = 1 ; i<=countCol ; i++){
+					name=rsm.getColumnName(i);
+					reg.append(name.toLowerCase()).append("\t");
+				}
+				reg.append(campoAcumuladoNombre);
+				
+				writer.write(reg.toString()+EOL);
+										
+				while(rs.next() ){					
+					if(idActual==null){					
+						reg = new StringBuilder();
+						acumulado = new ArrayList<String>();
+						idActual = rs.getString(idPor);
+
+
+						for(int i = 1;i<=countCol;i++){						
+							reg.append(rs.getString(i)).append("\t");
+						}
+						
+						for(String id : idAcumulados){
+							value =rs.getString(id);
+							if(!rs.wasNull()){
+								acumulado.add(rs.getString(id));
+							}
+						}
+						
+					}else{
+						
+						if(idActual.equals(rs.getString(idPor))){
+							for(String id : idAcumulados){
+								value =rs.getString(id);
+								if(!rs.wasNull()){
+									acumulado.add(rs.getString(id));
+								}
+							}
+						}else{
+							if(acumulado.size()>0){
+								for(String str : acumulado){
+									reg.append(str).append(",");
+								}
+								reg.deleteCharAt(reg.length()-1);
+							}	
+							reg.append(EOL);
+							
+							writer.write(reg.toString());
+							rowsCount++;
+							if(maxRows == rowsCount){
+								break;
+							}
+							
+							idActual= rs.getString(idPor);
+							reg = new StringBuilder();
+							acumulado = new ArrayList<String>();
+							
+							for(int i = 1;i<=countCol;i++){						
+								reg.append(rs.getString(i)).append("\t");
+							}
+							
+							for(String id : idAcumulados){
+								value =rs.getString(id);
+								if(!rs.wasNull()){
+									acumulado.add(rs.getString(id));
+								}
+							}
+							
+						}	
+					}					
+				}	
+			}
+		} catch (SQLException e) {
+			logm("ERR",1,"Error al escribir registros",e);
+		} catch (IOException e) {
+			logm("ERR",1,"Error al escribir registros",e);
+		}
+		return rowsCount;
 	}
 	
 	public static void closeWriterAppend(Writer writer){
@@ -587,6 +675,7 @@ public class LibRt {
 				jsLoad(mainPath,null,args);
 			}
 			catch (Exception ex) {
+				ex.printStackTrace();
 				logmex("ERR",1,"RT RUNNING SCRIPTS",null,ex);
 			}
 		}
