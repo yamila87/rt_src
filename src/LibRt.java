@@ -354,7 +354,18 @@ public class LibRt {
 							
 						}	
 					}					
+				}
+				
+				if(acumulado.size()>0){
+					for(String str : acumulado){
+						reg.append(str).append(",");
+					}
+					reg.deleteCharAt(reg.length()-1);
 				}	
+				reg.append(EOL);
+				
+				writer.write(reg.toString());
+				rowsCount++;			
 			}
 		} catch (SQLException e) {
 			logm("ERR",1,"Error al escribir registros",e);
